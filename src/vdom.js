@@ -1,6 +1,4 @@
 
-//-----------------------------------------------------------------------------
-
 let handlers = {};
 
 function createAction (name) {
@@ -19,20 +17,22 @@ function createActions(...names) {
 module.exports.createActions = createActions;
 
 //-----------------------------------------------------------------------------
-
 class Component {
     constructor (props , ...children) {
         this.props = props || {};
         this.children = children;
     }
-    appendTo(parent) {
+    appendTo (parent) {
         this.parent = parent;
-        this.node = this.getNode();
-        parent.appendChild(this.node);
+        this.node = this.render();
+        if (this.node) {
+            this.node.appendTo(parent);
+        }
         this.componentDidMount();
     }
-    componentDidMount () {
-    }
+    componentDidMount () {}
+    componentWillUnmount () {}
+    render () {}
     onAction(name, handler) {
         if (name in handlers) {
             handlers[name].push(handler);
@@ -40,12 +40,8 @@ class Component {
             handlers[name] = [handler];
         }
     }
-    getNode() {
-        let vnode = this.render();
-        while (!(vnode instanceof VNode)) {vnode = vnode.render();}
-        return vnode.node;
-    }
     update () {
+        if (this.node) this.node.componentWillUnmount();
         while (this.parent.firstChild) {
           this.parent.removeChild(this.parent.firstChild);
         }
@@ -55,40 +51,44 @@ class Component {
 module.exports.Component = Component;
 
 //-----------------------------------------------------------------------------
-class VNode {
+class VNode extends Component {
     constructor (tagName, props, ...children) {
-        this.node = document.createElement(tagName);
-        for (let prop of Object.keys(props || {})) {
+        super(props, ...children);
+        this.tagName = tagName;
+        this.css = {};
+    }
+    appendTo (parent) {
+        this.node = document.createElement(this.tagName);
+        for (let prop of Object.keys(this.props || {})) {
             if (prop === 'className') {
-                if (props.className instanceof Array) {
-                    for (let c of props.className) {
+                if (this.props.className instanceof Array) {
+                    for (let c of this.props.className) {
                         this.node.classList.add(c);
                     }
                 } else {
-                    this.node.classList.add(props.className);
+                    this.node.classList.add(this.props.className);
                 }
             } else if (prop === 'onClick') {
-
+                this.node.addEventListener('click', this.props.onClick);
             } else {
-                this.node.setAttribute(prop, props[prop]);
+                this.node.setAttribute(prop, this.props[prop]);
             }
         }
-        for (let child of children) {
+        for (let prop of Object.keys(this.css)) {
+            this.node.style[prop] = this.css[prop];
+        }
+        for (let child of this.children) {
             if (typeof child === 'string') {
                 this.node.appendChild(document.createTextNode(child));
             }
-            if (child instanceof VNode) {
-                this.node.appendChild(child.node);
-            }
             if (child instanceof Component) {
-                this.node.appendChild(child.render().node);
+                child.appendTo(this.node);
             }
         }
+        parent.appendChild(this.node);
     }
     style (css) {
-        for (let prop of Object.keys(css)) {
-            this.node.style[prop] = css[prop];
-        }
+        this.css = css;
         return this;
     }
 }

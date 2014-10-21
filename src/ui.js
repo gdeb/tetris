@@ -8,14 +8,15 @@ let actions = VDOM.createActions('startGame', 'stopGame');
 //-----------------------------------------------------------------------------
 class Tetris extends Component {
     constructor () {
+        super();
         this.state = new MainMenu();
         this.onAction('startGame', () => this.setGameState(InGame));
         this.onAction('stopGame', () => this.setGameState(MainMenu));
     }
     componentDidMount () {
         let body = document.body;
-        body.addEventListener('keypress', this.state.onKeyPress);
-        body.addEventListener('keydown', this.state.onKeyDown);
+        body.addEventListener('keypress', ev => this.state.onKeyPress(ev));
+        body.addEventListener('keydown', ev => this.state.onKeyDown(ev));
     }
     render () {
         return this.state;
@@ -28,10 +29,8 @@ class Tetris extends Component {
 module.exports = Tetris;
 
 class GameState extends Component {
-    onKeyPress () {
-    }
-    onKeyDown () {
-    }
+    onKeyPress () {}
+    onKeyDown () {}
 }
 
 //-----------------------------------------------------------------------------
@@ -41,6 +40,9 @@ class MainMenu extends GameState {
             console.log('p pressed');
             actions.startGame();
         }
+    }
+    componentWillUnmount () {
+        console.log('unmounting mainmenu');
     }
     render () {
         return div({className:"main-menu"},
@@ -56,14 +58,17 @@ class InGame extends GameState {
                     "textee",
                     div({className:"cell", onClick: this.test}));
     }
+    componentWillUnmount () {
+        console.log('unmounting ingame');
+    }
     onKeyDown (event) {
         if (event.keyCode === 27) {
             console.log('esc pressedee');
             actions.stopGame();
         }
     }
-    test () {
-        console.log('test, onclick');
+    test (ev) {
+        console.log('test, onclick', ev);
     }
 }
 
