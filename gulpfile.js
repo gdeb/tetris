@@ -20,11 +20,19 @@ gulp.task('move-html', function () {
         .pipe(gulp.dest(BUILD));
 });
 
-gulp.task('prepare-js', function() {
+gulp.task('browserify', function() {
     return gulp.src(SRC + '/index.js')
         .pipe(browserify())
+        // .pipe(es6transpiler({globals:{document:true}, disallowUnknownReferences: false}))
+        .pipe(rename('app-es6.js'))
+        .pipe(gulp.dest(BUILD));
+});
+
+gulp.task('prepare-js', ['browserify'], function() {
+    return gulp.src(BUILD + '/app-es6.js')
+        // .pipe(browserify())
+        .pipe(es6transpiler({globals:{document:true}, disallowUnknownReferences: false}))
         .pipe(rename('app.js'))
-        .pipe(es6transpiler({globals:{React:false, Reflux: false}}))
         .pipe(gulp.dest(BUILD));
 });
 
