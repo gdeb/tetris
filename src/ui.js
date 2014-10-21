@@ -52,13 +52,18 @@ class MainMenu extends GameState {
 //-----------------------------------------------------------------------------
 class InGame extends GameState {
     render () {
-        return div({className:"in-game"}, "textee");
+        return div({className:"in-game"},
+                    "textee",
+                    div({className:"cell", onClick: this.test}));
     }
     onKeyDown (event) {
         if (event.keyCode === 27) {
             console.log('esc pressedee');
             actions.stopGame();
         }
+    }
+    test () {
+        console.log('test, onclick');
     }
 }
 

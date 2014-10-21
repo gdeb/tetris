@@ -67,6 +67,8 @@ class VNode {
                 } else {
                     this.node.classList.add(props.className);
                 }
+            } else if (prop === 'onClick') {
+
             } else {
                 this.node.setAttribute(prop, props[prop]);
             }
