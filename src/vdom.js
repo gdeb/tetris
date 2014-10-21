@@ -1,3 +1,60 @@
+
+//-----------------------------------------------------------------------------
+
+let handlers = {};
+
+function createAction (name) {
+    return function (...args) {
+        handlers[name].forEach(handler => handler(...args));
+    };
+}
+function createActions(...names) {
+    let result = {};
+    for (let name of names) {
+        if (!(name in handlers)) handlers[name] = [];
+        result[name] = createAction (name);
+    }
+    return result;
+}
+module.exports.createActions = createActions;
+
+//-----------------------------------------------------------------------------
+
+class Component {
+    constructor (props , ...children) {
+        this.props = props || {};
+        this.children = children;
+    }
+    appendTo(parent) {
+        this.parent = parent;
+        this.node = this.getNode();
+        parent.appendChild(this.node);
+        this.componentDidMount();
+    }
+    componentDidMount () {
+    }
+    onAction(name, handler) {
+        if (name in handlers) {
+            handlers[name].push(handler);
+        } else {
+            handlers[name] = [handler];
+        }
+    }
+    getNode() {
+        let vnode = this.render();
+        while (!(vnode instanceof VNode)) {vnode = vnode.render();}
+        return vnode.node;
+    }
+    update () {
+        while (this.parent.firstChild) {
+          this.parent.removeChild(this.parent.firstChild);
+        }
+        this.appendTo(this.parent);
+    }
+}
+module.exports.Component = Component;
+
+//-----------------------------------------------------------------------------
 class VNode {
     constructor (tagName, props, ...children) {
         this.node = document.createElement(tagName);
@@ -44,61 +101,3 @@ let tags = ['div', 'h1', 'p'];
 for (let tag of tags) {
     module.exports[tag] = makeTagNode(tag);
 }
-
-//-----------------------------------------------------------------------------
-let handlers = {};
-
-class Component {
-    constructor (props , ...children) {
-        this.props = props || {};
-        this.children = children;
-    }
-    appendTo(parent) {
-        this.parent = parent;
-        this.node = this.getNode();
-        parent.appendChild(this.node);
-        this.componentDidMount();
-    }
-    componentDidMount () {
-    }
-    onAction(name, handler) {
-        if (name in handlers) {
-            handlers[name].push(handler);
-        } else {
-            handlers[name] = [handler];
-        }
-    }
-    getNode() {
-        let vnode = this.render();
-        while (!(vnode instanceof VNode)) {vnode = vnode.render();}
-        return vnode.node;
-    }
-    update () {
-        while (this.parent.firstChild) {
-          this.parent.removeChild(this.parent.firstChild);
-        }
-        this.appendTo(this.parent);
-    }
-}
-module.exports.Component = Component;
-
-//-----------------------------------------------------------------------------
-function createAction (name) {
-    if (!(name in handlers)) {
-        handlers[name] = [];
-    }
-    return function (...args) {
-        for (let handler of handlers[name]) {
-            handler(...args);
-        }
-    };
-}
-
-function createActions(...names) {
-    let result = {};
-    for (let name of names) {
-        result[name] = createAction(name);
-    }
-    return result;
-}
-module.exports.createActions = createActions;
