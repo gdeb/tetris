@@ -1,6 +1,7 @@
-let VDOM = require('./vdom.js');
+let VDOM = require('./vdom.js'),
+    TetrisGame = require('./tetris.js');
 
-let {div, h1, p, Component} = VDOM;
+let {div, h1, p, canvas, Component} = VDOM;
 
 //-----------------------------------------------------------------------------
 let actions = VDOM.createActions('startGame', 'stopGame');
@@ -36,13 +37,7 @@ class GameState extends Component {
 //-----------------------------------------------------------------------------
 class MainMenu extends GameState {
     onKeyPress (event) {
-        if (event.keyCode === 112) {
-            console.log('p pressed');
-            actions.startGame();
-        }
-    }
-    componentWillUnmount () {
-        console.log('unmounting mainmenu');
+        if (event.keyCode === 112) actions.startGame();
     }
     render () {
         return div({className:"main-menu"},
@@ -53,22 +48,16 @@ class MainMenu extends GameState {
 
 //-----------------------------------------------------------------------------
 class InGame extends GameState {
-    render () {
-        return div({className:"in-game"},
-                    "textee",
-                    div({className:"cell", onClick: this.test}));
+    constructor (...args) {
+        super(...args);
+        this.canvas = canvas({className:'board'});
+        this.tetrisGame = new TetrisGame(this.canvas);
     }
-    componentWillUnmount () {
-        console.log('unmounting ingame');
+    render () {
+        return div({className:"in-game"}, this.canvas);
     }
     onKeyDown (event) {
-        if (event.keyCode === 27) {
-            console.log('esc pressedee');
-            actions.stopGame();
-        }
-    }
-    test (ev) {
-        console.log('test, onclick', ev);
+        if (event.keyCode === 27) actions.stopGame();
     }
 }
 

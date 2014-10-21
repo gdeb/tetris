@@ -59,7 +59,7 @@ class VNode extends Component {
     }
     appendTo (parent) {
         this.node = document.createElement(this.tagName);
-        for (let prop of Object.keys(this.props || {})) {
+        for (let prop of Object.keys(this.props)) {
             if (prop === 'className') {
                 if (this.props.className instanceof Array) {
                     for (let c of this.props.className) {
@@ -98,7 +98,7 @@ function makeTagNode (tagName) {
     return function (...args) {return new VNode (tagName, ...args);};
 }
 
-let tags = ['div', 'h1', 'p'];
+let tags = ['div', 'h1', 'p', 'canvas'];
 
 for (let tag of tags) {
     module.exports[tag] = makeTagNode(tag);
