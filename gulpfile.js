@@ -5,7 +5,8 @@ var gulp = require('gulp'),
     rimraf = require('rimraf'),
     runSequence = require('run-sequence'),
     browserify = require('gulp-browserify'),
-    es6transpiler = require('gulp-es6-transpiler'),
+    // es6transpiler = require('gulp-es6-transpiler'),
+    // traceur = require('gulp-traceur'),
     rename = require('gulp-rename');
 
 var SRC = './src',
@@ -28,14 +29,23 @@ gulp.task('browserify', function() {
         .pipe(gulp.dest(BUILD));
 });
 
-gulp.task('prepare-js', ['browserify'], function() {
-    return gulp.src(BUILD + '/app-es6.js')
-        // .pipe(browserify())
-        .pipe(es6transpiler({globals:{document:true}, disallowUnknownReferences: false}))
+gulp.task('prepare-js', function() {
+    return gulp.src(SRC + '/index.js')
+        // .pipe(traceur())
+        // .pipe(es6transpiler({globals:{document:true}, disallowUnknownReferences: false}))
+        .pipe(browserify())
         .pipe(rename('app.js'))
         .pipe(gulp.dest(BUILD));
 });
 
+// gulp.task('prepare-js', ['browserify'], function() {
+//     return gulp.src(BUILD + '/app-es6.js')
+//         // .pipe(browserify())
+//         .pipe(es6transpiler({globals:{document:true}, disallowUnknownReferences: false}))
+//         .pipe(rename('app.js'))
+//         .pipe(gulp.dest(BUILD));
+// });
+//
 gulp.task('prepare-css', function () {
     return gulp.src(['src/**/*.css'])
         .pipe(gulp.dest(BUILD));

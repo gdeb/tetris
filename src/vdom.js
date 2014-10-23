@@ -1,105 +1,90 @@
 
-let handlers = {};
+var handlers = {};
 
 function createAction (name) {
-    return function (...args) {
-        handlers[name].forEach(handler => handler(...args));
+    if (!(name in handlers)) handlers[name] = [];
+    return function () {
+        var args = Array.prototype.slice.call(arguments);
+        handlers[name].forEach(function (handler) {
+            handler.apply(null, args);
+        });
     };
 }
-function createActions(...names) {
-    let result = {};
-    for (let name of names) {
-        if (!(name in handlers)) handlers[name] = [];
-        result[name] = createAction (name);
-    }
+function createActions () {
+    var names = Array.prototype.slice.call(arguments),
+        result = {};
+    names.forEach(function (name) {
+        result[name] = createAction(name);
+    });
     return result;
 }
 module.exports.createActions = createActions;
-
 //-----------------------------------------------------------------------------
-class Component {
-    constructor (props , ...children) {
-        this.props = props || {};
-        this.children = children;
-    }
-    appendTo (parent) {
-        this.parent = parent;
-        this.node = this.render();
-        if (this.node) {
-            this.node.appendTo(parent);
-        }
-        this.componentDidMount();
-    }
-    componentDidMount () {}
-    componentWillUnmount () {}
-    render () {}
-    onAction(name, handler) {
-        if (name in handlers) {
-            handlers[name].push(handler);
+function VNode (tagName, props) {
+    var i,
+        children = Array.prototype.slice.call(arguments, 2),
+        keys = Object.keys(props || {});
+    this.node = document.createElement(tagName);
+    for (i = 0; i < keys.length; i++) {
+        if (keys[i] === 'className') {
+            this.node.classList.add(props.className);
+        } else if (keys[i] === 'onClick') {
+            this.node.addEventListener('click', props.onClick);
         } else {
-            handlers[name] = [handler];
+            this.node.setAttribute(keys[i], props[keys[i]]);
         }
     }
-    update () {
-        if (this.node) this.node.componentWillUnmount();
-        while (this.parent.firstChild) {
-          this.parent.removeChild(this.parent.firstChild);
+    for (i = 0; i < children.length; i++) {
+        if (typeof children[i] === 'string') {
+            this.node.appendChild(document.createTextNode(children[i]));
         }
-        this.appendTo(this.parent);
+        if (children[i] instanceof VNode) {
+            this.node.appendChild(children[i].node);
+        }
     }
 }
+
+VNode.prototype.style = function (css) {
+    var props = Object.keys(css);
+    for (var i = 0; i < props.length; i++) {
+        this.node.style[props[i]] = css[props[i]];
+    }
+    return this;
+};
+
+var tags = ['div', 'p', 'h1'];
+tags.forEach(function (tag) {
+    module.exports[tag] = function () {
+        var vnode = Object.create(VNode.prototype);
+        var args = [tag].concat(Array.prototype.slice.call(arguments));
+        VNode.apply(vnode, args);
+        return vnode;
+    };
+});
+
+//-----------------------------------------------------------------------------
+function Component (props) {
+    this.props = props || {};
+    this.children = Array.prototype.slice.call(arguments, 1);
+    this.vnode = this.render();
+    while (this.vnode instanceof Component) {
+        this.vnode = this.vnode.render();
+    }
+}
+
+Component.prototype.render = function () {};
+Component.prototype.appendTo = function (parent) {
+    this.parent = parent;
+    if (this.vnode) parent.appendChild(this.vnode.node);
+};
+Component.prototype.destroy = function () {
+    if (this.parent && this.vnode) {
+        this.parent.removeChild(this.vnode.node);
+    }
+};
+Component.prototype.onAction = function (name, handler) {
+    if (name in handlers) handlers[name].push(handler);
+    else handlers[name] = [handler];
+};
+
 module.exports.Component = Component;
-
-//-----------------------------------------------------------------------------
-class VNode extends Component {
-    constructor (tagName, props, ...children) {
-        super(props, ...children);
-        this.tagName = tagName;
-        this.css = {};
-    }
-    appendTo (parent) {
-        this.node = document.createElement(this.tagName);
-        for (let prop of Object.keys(this.props)) {
-            if (prop === 'className') {
-                if (this.props.className instanceof Array) {
-                    for (let c of this.props.className) {
-                        this.node.classList.add(c);
-                    }
-                } else {
-                    this.node.classList.add(this.props.className);
-                }
-            } else if (prop === 'onClick') {
-                this.node.addEventListener('click', this.props.onClick);
-            } else {
-                this.node.setAttribute(prop, this.props[prop]);
-            }
-        }
-        for (let prop of Object.keys(this.css)) {
-            this.node.style[prop] = this.css[prop];
-        }
-        for (let child of this.children) {
-            if (typeof child === 'string') {
-                this.node.appendChild(document.createTextNode(child));
-            }
-            if (child instanceof Component) {
-                child.appendTo(this.node);
-            }
-        }
-        parent.appendChild(this.node);
-    }
-    style (css) {
-        this.css = css;
-        return this;
-    }
-}
-
-//-----------------------------------------------------------------------------
-function makeTagNode (tagName) {
-    return function (...args) {return new VNode (tagName, ...args);};
-}
-
-let tags = ['div', 'h1', 'p', 'canvas'];
-
-for (let tag of tags) {
-    module.exports[tag] = makeTagNode(tag);
-}

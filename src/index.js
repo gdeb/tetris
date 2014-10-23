@@ -1,8 +1,7 @@
 /* global document */
 
-let Tetris = require('./ui.js');
-
+var TetrisUI = require('./tetris-ui.js');
 document.addEventListener("DOMContentLoaded", function () {
-	let tetris = new Tetris();
-	tetris.appendTo(document.body);
+    var game = new TetrisUI();
+    game.appendTo(document.body);
 });
