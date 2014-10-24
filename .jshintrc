@@ -3,5 +3,5 @@
   "esnext": true,
   "node": true,
   "unused": true,
-  "predef": [ "document" ]
+  "predef": [ "window", "document" ]
 }

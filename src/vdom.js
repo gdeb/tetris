@@ -19,13 +19,22 @@ function createActions () {
     return result;
 }
 module.exports.createActions = createActions;
+
 //-----------------------------------------------------------------------------
-function VNode (tagName, props) {
-    var i,
-        children = Array.prototype.slice.call(arguments, 2),
-        keys = Object.keys(props || {});
+function VNode () {}
+VNode.prototype.appendTo = function () {};
+VNode.prototype.destroy = function () {};
+
+//-----------------------------------------------------------------------------
+function HtmlVNode (tagName, props) {
     this.node = document.createElement(tagName);
-    for (i = 0; i < keys.length; i++) {
+    this.children = [];
+    var children = Array.prototype.slice.call(arguments, 2);
+    for (var j = 0; j < children.length; j++) {
+        this.children = this.children.concat(children[j]);
+    }
+    var keys = Object.keys(props || {});
+    for (var i = 0; i < keys.length; i++) {
         if (keys[i] === 'className') {
             this.node.classList.add(props.className);
         } else if (keys[i] === 'onClick') {
@@ -34,17 +43,32 @@ function VNode (tagName, props) {
             this.node.setAttribute(keys[i], props[keys[i]]);
         }
     }
-    for (i = 0; i < children.length; i++) {
-        if (typeof children[i] === 'string') {
-            this.node.appendChild(document.createTextNode(children[i]));
+}
+HtmlVNode.prototype = Object.create(VNode.prototype);
+
+HtmlVNode.prototype.appendTo = function (node) {
+    this.parentNode = node;
+    for (var i = 0; i < this.children.length; i++) {
+        if (typeof this.children[i] === 'string') {
+            this.node.appendChild(document.createTextNode(this.children[i]));
         }
-        if (children[i] instanceof VNode) {
-            this.node.appendChild(children[i].node);
+        if (this.children[i] instanceof VNode) {
+            this.children[i].appendTo(this.node);
         }
     }
-}
-
-VNode.prototype.style = function (css) {
+    node.appendChild(this.node);
+};
+HtmlVNode.prototype.destroy = function () {
+    for (var i = 0; i < this.children.length; i++) {
+        if (this.children[i] instanceof VNode) {
+            this.children[i].destroy();
+        }
+    }
+    this.parentNode.removeChild(this.node);
+    this.node = undefined;
+    this.parentNode = undefined;
+};
+HtmlVNode.prototype.style = function (css) {
     var props = Object.keys(css);
     for (var i = 0; i < props.length; i++) {
         this.node.style[props[i]] = css[props[i]];
@@ -52,34 +76,26 @@ VNode.prototype.style = function (css) {
     return this;
 };
 
-var tags = ['div', 'p', 'h1'];
-tags.forEach(function (tag) {
-    module.exports[tag] = function () {
-        var vnode = Object.create(VNode.prototype);
-        var args = [tag].concat(Array.prototype.slice.call(arguments));
-        VNode.apply(vnode, args);
-        return vnode;
-    };
-});
-
 //-----------------------------------------------------------------------------
 function Component (props) {
     this.props = props || {};
     this.children = Array.prototype.slice.call(arguments, 1);
-    this.vnode = this.render();
-    while (this.vnode instanceof Component) {
-        this.vnode = this.vnode.render();
-    }
 }
+Component.prototype = Object.create(VNode.prototype);
 
 Component.prototype.render = function () {};
-Component.prototype.appendTo = function (parent) {
-    this.parent = parent;
-    if (this.vnode) parent.appendChild(this.vnode.node);
+Component.prototype.componentDidRender = function () {};
+Component.prototype.appendTo = function (parentNode) {
+    this.parentNode = parentNode;
+    this.vnode = this.render();
+    this.componentDidRender();
+    if (this.vnode) this.vnode.appendTo(parentNode);
 };
 Component.prototype.destroy = function () {
-    if (this.parent && this.vnode) {
-        this.parent.removeChild(this.vnode.node);
+    if (this.parentNode && this.vnode) {
+        this.vnode.destroy();
+        this.vnode = null;
+        this.parentNode = null;
     }
 };
 Component.prototype.onAction = function (name, handler) {
@@ -88,3 +104,14 @@ Component.prototype.onAction = function (name, handler) {
 };
 
 module.exports.Component = Component;
+
+//-----------------------------------------------------------------------------
+var htmlTags = ['div', 'p', 'h1', 'canvas'];
+htmlTags.forEach(function (tag) {
+    module.exports[tag] = function () {
+        var vnode = Object.create(HtmlVNode.prototype);
+        var args = [tag].concat(Array.prototype.slice.call(arguments));
+        HtmlVNode.apply(vnode, args);
+        return vnode;
+    };
+});
