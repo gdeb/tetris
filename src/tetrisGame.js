@@ -47,7 +47,17 @@ TetrisGame.prototype.createBlocks = function () {
     this.nextPiece = tetromino;
 };
 TetrisGame.prototype.getBoard = function () {
-    for (var i = 0, board = this.cells.slice(0), index; i < 4; i++) {
+    var i, index,
+        board = this.cells.slice(0),
+        ghost = this.blocks.map(function (block) {return block.slice(0);});
+    while (this.isMoveLegal(moves.down, ghost)) {
+        ghost = ghost.map(moves.down);
+    }
+    for (i = 0; i < 4; i++) {
+        index = ghost[i][0] + 10 * ghost[i][1];
+        board[index] = -2;
+    }
+    for (i = 0; i < 4; i++) {
         index = this.blocks[i][0] + 10 * this.blocks[i][1];
         board[index] = this.color;
     }
@@ -75,10 +85,10 @@ TetrisGame.prototype.applyMove = function (name) {
     var move = name === 'rotate' ? moves.rotateAround(this.blocks[0]) : moves[name];
     if (this.isMoveLegal(move)) this.blocks = this.blocks.map(move);
 };
-TetrisGame.prototype.isMoveLegal = function (move) {
+TetrisGame.prototype.isMoveLegal = function (move, blocks) {
     var self = this,
         result = true;
-    this.blocks.map(move).forEach(function (block) {
+    (blocks || this.blocks).map(move).forEach(function (block) {
         if ((block[1] < 0) || (block[0] < 0) || (block[0] >= 10)) result = false;
         if (self.cells[block[0] + 10*block[1]]) result = false;
     });
