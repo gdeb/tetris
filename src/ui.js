@@ -86,7 +86,8 @@ InGame.prototype.render = function () {
                     p(null, 'Score:'),
                     this.scoreNode,
                     p(null, 'Next piece:'),
-                    div({className:"preview-menu"}, this.preview)
+                    div({className:"preview-menu"}, this.preview),
+                    p(null, "Press 'p' to pause the game.")
                 ));
 };
 InGame.prototype.onKeyDown = function (event) {
