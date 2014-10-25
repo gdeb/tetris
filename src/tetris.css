@@ -84,15 +84,15 @@ body {
 }
 
 .col1 {
-	background-color: red;
+	background-color: cyan;
 }
 
 .col2 {
-	background-color: green;
+	background-color: purple;
 }
 
 .col3 {
-	background-color: white;
+	background-color: yellow;
 }
 
 .col4 {
@@ -104,11 +104,11 @@ body {
 }
 
 .col6 {
-	background-color: purple;
+	background-color: green;
 }
 
 .col7 {
-	background-color: yellow;
+	background-color: red;
 }
 
 .col-1 {
