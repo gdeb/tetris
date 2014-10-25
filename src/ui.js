@@ -66,6 +66,7 @@ MainMenu.prototype.onKeyPress = function (event) {
 function InGame () {
     GameState.call(this);
     this.game = new Tetris();
+    this.paused = false;
     this.cells = [];
     while (this.cells.length < 200) this.cells.push(div({className:"cell"}));
     this.updateBoard();
@@ -74,28 +75,33 @@ function InGame () {
     this.updatePreview();
     this.tickInterval = setInterval(this.tick.bind(this), 1000);
     this.scoreNode = p(null, "0");
+    this.pauseScreen = div({className: "paused"}, h1(null, "Paused"));
 }
 InGame.prototype = Object.create(GameState.prototype);
 InGame.prototype.render = function () {
     return div({className:"in-game"},
-                div({className:"board"}, this.cells),
+                div({className:"board"}, this.cells, this.pauseScreen),
                 div({className:"right-menu"},
                     h1(null, 'Tetris'),
                     p(null, 'Score:'),
                     this.scoreNode,
                     p(null, 'Next piece:'),
-                    div({className:"preview-menu"}, this.preview)
+                    div({className:"preview-menu"}, this.preview),
+                    p(null, "Press 'p' to pause the game.")
                 ));
 };
 InGame.prototype.onKeyDown = function (event) {
     switch (event.keyCode) {
         case 27: actions.stopGame(this.game.score); break;
-        case 37: this.move('left'); break;
-        case 32: this.move('drop'); break;
-        case 38: this.move('rotate'); break;
-        case 39: this.move('right'); break;
-        case 40: this.move('down'); break;
+        case 37: if (!this.paused) this.move('left'); break;
+        case 32: if (!this.paused) this.move('drop'); break;
+        case 38: if (!this.paused) this.move('rotate'); break;
+        case 39: if (!this.paused) this.move('right'); break;
+        case 40: if (!this.paused) this.move('down'); break;
     }
+};
+InGame.prototype.onKeyPress = function (event) {
+    if (event.which === 112) this.togglePause();
 };
 InGame.prototype.updateBoard = function () {
     for (var i = 0, board = this.game.getBoard(); i < 10; i++) {
@@ -103,6 +109,17 @@ InGame.prototype.updateBoard = function () {
             this.cells[i+10*(19-j)].node.className = "cell col" + board[i+10*j];
         }
     }
+};
+InGame.prototype.togglePause = function () {
+    if (this.tickInterval >= 0) {
+        clearInterval(this.tickInterval);
+        this.tickInterval = -1;
+        this.pauseScreen.style({display:'flex'});
+    } else {
+        this.tickInterval = setInterval(this.tick.bind(this), 1000);
+        this.pauseScreen.style({display:'none'});
+    }
+    this.paused = !this.paused;
 };
 InGame.prototype.update = function () {
     this.updateBoard();

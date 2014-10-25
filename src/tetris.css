@@ -43,6 +43,23 @@ body {
 	flex-wrap: wrap;
 	border-right: 1px solid gray;
 	border-bottom: 1px solid gray;
+	position: relative;
+}
+.paused {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	opacity: 0.5;
+	background-color: black;
+	display: flex;
+	display: none;
+	border-left: 1px solid gray;
+	border-top: 1px solid gray;
+}
+.paused > h1 {
+	margin: auto;
 }
 .cell {
 	width: calc(10% - 1px);
@@ -117,5 +134,5 @@ body {
 }
 
 .col-1 {
-	background-color: gray;
+	background-color: #333;
 }
