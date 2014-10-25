@@ -22,8 +22,8 @@ function TetrisUI () {
     this.onAction('startGame', function () {
         self.updateState(new InGame());
     });
-    this.onAction('stopGame', function () {
-        self.updateState(new GameOver());
+    this.onAction('stopGame', function (score) {
+        self.updateState(new GameOver(score || 0));
     });
     this.onAction('backToMainMenu', function () {
         self.updateState(new MainMenu());
@@ -89,7 +89,7 @@ InGame.prototype.render = function () {
 };
 InGame.prototype.onKeyDown = function (event) {
     switch (event.keyCode) {
-        case 27: actions.stopGame(); break;
+        case 27: actions.stopGame(this.game.score); break;
         case 37: this.move('left'); break;
         case 32: this.move('drop'); break;
         case 38: this.move('rotate'); break;
@@ -130,23 +130,25 @@ InGame.prototype.move = function (move) {
     this.game.applyMove(move);
     if ((move === 'down') || (move === 'drop')) {
         this.update();
-        if (this.game.gameover) return actions.stopGame();
+        if (this.game.gameover) return actions.stopGame(this.game.score);
     }
     this.updateBoard();
 };
 InGame.prototype.tick = function () {
     this.game.tick();
-    if (this.game.gameover) actions.stopGame();
+    if (this.game.gameover) actions.stopGame(this.game.score);
     else this.update();
 };
 //-----------------------------------------------------------------------------
-function GameOver () {
+function GameOver (score) {
     GameState.call(this);
+    this.score = score;
 }
 GameOver.prototype = Object.create(GameState.prototype);
 GameOver.prototype.render = function () {
     return div({className: "main-menu"},
             h1(null, "Game Over"),
+            p(null, "Score: ", this.score.toString()),
             p(null, "Press 'Esc' to go back to main menu"));
 };
 GameOver.prototype.onKeyDown = function (event) {
