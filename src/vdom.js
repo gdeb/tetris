@@ -84,11 +84,9 @@ function Component (props) {
 Component.prototype = Object.create(VNode.prototype);
 
 Component.prototype.render = function () {};
-Component.prototype.componentDidRender = function () {};
 Component.prototype.appendTo = function (parentNode) {
     this.parentNode = parentNode;
     this.vnode = this.render();
-    this.componentDidRender();
     if (this.vnode) this.vnode.appendTo(parentNode);
 };
 Component.prototype.destroy = function () {
