@@ -1,7 +1,6 @@
-/* global document */
 
-let TetrisGame = require('./tetris-component.js');
-
+var TetrisUI = require('./ui.js');
 document.addEventListener("DOMContentLoaded", function () {
-	React.renderComponent(TetrisGame(null), document.body);
+    var game = new TetrisUI();
+    game.appendTo(document.body);
 });
