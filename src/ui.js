@@ -73,6 +73,7 @@ function InGame () {
     while (this.preview.length < 16) this.preview.push(div({className:"preview"}));
     this.updatePreview();
     this.tickInterval = setInterval(this.tick.bind(this), 1000);
+    this.scoreNode = p(null, "0");
 }
 InGame.prototype = Object.create(GameState.prototype);
 InGame.prototype.render = function () {
@@ -80,6 +81,8 @@ InGame.prototype.render = function () {
                 div({className:"board"}, this.cells),
                 div({className:"right-menu"},
                     h1(null, 'Tetris'),
+                    p(null, 'Score:'),
+                    this.scoreNode,
                     p(null, 'Next piece:'),
                     div({className:"preview-menu"}, this.preview)
                 ));
@@ -101,6 +104,11 @@ InGame.prototype.updateBoard = function () {
         }
     }
 };
+InGame.prototype.update = function () {
+    this.updateBoard();
+    this.updatePreview();
+    this.updateScore();
+};
 InGame.prototype.updatePreview = function () {
     var i, index,
         nextBlocks = this.game.nextPiece[0],
@@ -111,6 +119,9 @@ InGame.prototype.updatePreview = function () {
         this.preview[index].node.className = "preview col" + nextColor;
     }
 };
+InGame.prototype.updateScore = function () {
+    this.scoreNode.node.firstChild.nodeValue = this.game.score;
+};
 InGame.prototype.destroy = function () {
     clearInterval(this.tickInterval);
     GameState.prototype.destroy.call(this);
@@ -118,7 +129,7 @@ InGame.prototype.destroy = function () {
 InGame.prototype.move = function (move) {
     this.game.applyMove(move);
     if ((move === 'down') || (move === 'drop')) {
-        this.updatePreview();
+        this.update();
         if (this.game.gameover) return actions.stopGame();
     }
     this.updateBoard();
@@ -126,9 +137,8 @@ InGame.prototype.move = function (move) {
 InGame.prototype.tick = function () {
     this.game.tick();
     if (this.game.gameover) actions.stopGame();
-    else this.updateBoard();
+    else this.update();
 };
-
 //-----------------------------------------------------------------------------
 function GameOver () {
     GameState.call(this);

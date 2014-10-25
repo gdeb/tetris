@@ -33,6 +33,7 @@ function TetrisGame () {
     this.nextPiece = randomElement(tetrominoes);
     this.createBlocks();
     this.gameover = false;
+    this.score = 0;
 }
 TetrisGame.prototype.createBlocks = function () {
     this.blocks = this.nextPiece[0].map(function (block) {
@@ -84,11 +85,16 @@ TetrisGame.prototype.isMoveLegal = function (move) {
     return result;
 };
 TetrisGame.prototype.markFullLines = function () {
-    var isFull, identity = function (i) {return i;};
-    for (var i = 0; i < 20; i++) {
+    var isFull,
+        identity = function (i) {return i;};
+    for (var i = 0, nbr = 0; i < 20; i++) {
         isFull = this.cells.slice(10*i, 10*(i+1)).every(identity);
-        if (isFull) this.markLine(i, -1);
+        if (isFull) {
+            this.markLine(i, -1);
+            nbr++;
+        }
     }
+    this.score += 10*nbr*nbr;
 };
 TetrisGame.prototype.markLine = function (j, val) {
     for (var i = 0; i < 10; i++) this.cells[i + 10*j] = val;
