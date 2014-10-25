@@ -6,7 +6,7 @@ var Component = VDOM.Component,
     div = VDOM.div,
     h1 = VDOM.h1,
     p = VDOM.p,
-    actions = VDOM.createActions('startGame', 'stopGame');
+    actions = VDOM.createActions('startGame', 'stopGame', 'backToMainMenu');
 
 //-----------------------------------------------------------------------------
 function TetrisUI () {
@@ -17,12 +17,15 @@ function TetrisUI () {
         self.state.onKeyPress(ev);
     });
     window.addEventListener('keydown', function (ev) {
-        self.state.onKeyDown(ev);
+        if (!self.state.destroyed) self.state.onKeyDown(ev);
     });
     this.onAction('startGame', function () {
         self.updateState(new InGame());
     });
     this.onAction('stopGame', function () {
+        self.updateState(new GameOver());
+    });
+    this.onAction('backToMainMenu', function () {
         self.updateState(new MainMenu());
     });
 }
@@ -69,11 +72,7 @@ function InGame () {
     this.preview = [];
     while (this.preview.length < 16) this.preview.push(div({className:"preview"}));
     this.updatePreview();
-    var self = this;
-    this.tick = setInterval(function () {
-        self.game.tick();
-        self.updateBoard();
-    }, 1000);
+    this.tickInterval = setInterval(this.tick.bind(this), 1000);
 }
 InGame.prototype = Object.create(GameState.prototype);
 InGame.prototype.render = function () {
@@ -113,11 +112,33 @@ InGame.prototype.updatePreview = function () {
     }
 };
 InGame.prototype.destroy = function () {
-    clearInterval(this.tick);
+    clearInterval(this.tickInterval);
     GameState.prototype.destroy.call(this);
 };
 InGame.prototype.move = function (move) {
     this.game.applyMove(move);
-    if (move === 'down' || move === 'drop') this.updatePreview();
+    if ((move === 'down') || (move === 'drop')) {
+        this.updatePreview();
+        if (this.game.gameover) return actions.stopGame();
+    }
     this.updateBoard();
+};
+InGame.prototype.tick = function () {
+    this.game.tick();
+    if (this.game.gameover) actions.stopGame();
+    else this.updateBoard();
+};
+
+//-----------------------------------------------------------------------------
+function GameOver () {
+    GameState.call(this);
+}
+GameOver.prototype = Object.create(GameState.prototype);
+GameOver.prototype.render = function () {
+    return div({className: "main-menu"},
+            h1(null, "Game Over"),
+            p(null, "Press 'Esc' to go back to main menu"));
+};
+GameOver.prototype.onKeyDown = function (event) {
+    if (event.keyCode === 27) actions.backToMainMenu();
 };

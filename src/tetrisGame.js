@@ -32,6 +32,7 @@ function TetrisGame () {
     while (this.cells.length < 220) this.cells.push(0);
     this.nextPiece = randomElement(tetrominoes);
     this.createBlocks();
+    this.gameover = false;
 }
 TetrisGame.prototype.createBlocks = function () {
     this.blocks = this.nextPiece[0].map(function (block) {
@@ -62,6 +63,7 @@ TetrisGame.prototype.tick = function () {
     }
     this.markFullLines();
     this.createBlocks();
+    this.checkEndGame();
 };
 TetrisGame.prototype.applyMove = function (name) {
     if (name === 'drop') {
@@ -94,6 +96,14 @@ TetrisGame.prototype.markLine = function (j, val) {
 TetrisGame.prototype.removeFullLines = function () {
     this.cells = this.cells.filter(function (i) {return i >= 0; });
     while (this.cells.length < 220) this.cells.push(0);
+};
+TetrisGame.prototype.checkEndGame = function () {
+    for (var i = 0; i < 4; i++) {
+        if (this.cells[this.blocks[i][0] + 10*this.blocks[i][1]] !== 0) {
+            this.gameover = true;
+            return;
+        }
+    }
 };
 
 module.exports = TetrisGame;
