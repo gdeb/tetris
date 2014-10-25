@@ -30,17 +30,19 @@ var moves = {
 function TetrisGame () {
     this.cells = [];
     while (this.cells.length < 220) this.cells.push(0);
+    this.nextPiece = randomElement(tetrominoes);
     this.createBlocks();
 }
 TetrisGame.prototype.createBlocks = function () {
+    this.blocks = this.nextPiece[0].map(function (block) {
+        return [block[0] + 4, block[1] + 19];
+    });
+    this.color = this.nextPiece[1] + 1;
     var tetromino;
     do {
         tetromino = randomElement(tetrominoes);
     } while (tetromino[1] + 1 === this.color);
-    this.blocks = tetromino[0].map(function (block) {
-        return [block[0] + 4, block[1] + 19];
-    });
-    this.color = tetromino[1] + 1;
+    this.nextPiece = tetromino;
 };
 TetrisGame.prototype.getBoard = function () {
     for (var i = 0, board = this.cells.slice(0), index; i < 4; i++) {

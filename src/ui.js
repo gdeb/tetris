@@ -66,6 +66,9 @@ function InGame () {
     this.cells = [];
     while (this.cells.length < 200) this.cells.push(div({className:"cell"}));
     this.updateBoard();
+    this.preview = [];
+    while (this.preview.length < 16) this.preview.push(div({className:"preview"}));
+    this.updatePreview();
     var self = this;
     this.tick = setInterval(function () {
         self.game.tick();
@@ -76,7 +79,11 @@ InGame.prototype = Object.create(GameState.prototype);
 InGame.prototype.render = function () {
     return div({className:"in-game"},
                 div({className:"board"}, this.cells),
-                div({className:"right-menu"}, p(null, 'right menu')));
+                div({className:"right-menu"},
+                    h1(null, 'Tetris'),
+                    p(null, 'Next piece:'),
+                    div({className:"preview-menu"}, this.preview)
+                ));
 };
 InGame.prototype.onKeyDown = function (event) {
     switch (event.keyCode) {
@@ -95,11 +102,22 @@ InGame.prototype.updateBoard = function () {
         }
     }
 };
+InGame.prototype.updatePreview = function () {
+    var i, index,
+        nextBlocks = this.game.nextPiece[0],
+        nextColor = this.game.nextPiece[1] + 1;
+    for (i = 0; i < 16; i++) this.preview[i].node.className = "preview";
+    for (i = 0, index; i < 4; i++) {
+        index = 1 + nextBlocks[i][0] + 4*(3 - 1 - nextBlocks[i][1]);
+        this.preview[index].node.className = "preview col" + nextColor;
+    }
+};
 InGame.prototype.destroy = function () {
     clearInterval(this.tick);
     GameState.prototype.destroy.call(this);
 };
 InGame.prototype.move = function (move) {
     this.game.applyMove(move);
+    if (move === 'down' || move === 'drop') this.updatePreview();
     this.updateBoard();
 };
