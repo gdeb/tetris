@@ -22,28 +22,17 @@ gulp.task('move-html', function () {
 gulp.task('browserify', function() {
     return gulp.src(SRC + '/index.js')
         .pipe(browserify())
-        // .pipe(es6transpiler({globals:{document:true}, disallowUnknownReferences: false}))
         .pipe(rename('app-es6.js'))
         .pipe(gulp.dest(BUILD));
 });
 
 gulp.task('prepare-js', function() {
     return gulp.src(SRC + '/index.js')
-        // .pipe(traceur())
-        // .pipe(es6transpiler({globals:{document:true}, disallowUnknownReferences: false}))
         .pipe(browserify())
         .pipe(rename('app.js'))
         .pipe(gulp.dest(BUILD));
 });
 
-// gulp.task('prepare-js', ['browserify'], function() {
-//     return gulp.src(BUILD + '/app-es6.js')
-//         // .pipe(browserify())
-//         .pipe(es6transpiler({globals:{document:true}, disallowUnknownReferences: false}))
-//         .pipe(rename('app.js'))
-//         .pipe(gulp.dest(BUILD));
-// });
-//
 gulp.task('prepare-css', function () {
     return gulp.src(['src/**/*.css'])
         .pipe(gulp.dest(BUILD));
