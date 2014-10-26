@@ -5,12 +5,10 @@ var gulp = require('gulp'),
     rimraf = require('rimraf'),
     runSequence = require('run-sequence'),
     browserify = require('gulp-browserify'),
-    // es6transpiler = require('gulp-es6-transpiler'),
-    // traceur = require('gulp-traceur'),
     rename = require('gulp-rename');
 
 var SRC = './src',
-    BUILD = './_build';
+    BUILD = './dist';
 //-----------------------------------------------------------------------------
 gulp.task('clean', function (cb) {
     rimraf(BUILD, cb);

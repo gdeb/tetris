@@ -9,10 +9,8 @@
   "author": "Géry Debongnie",
   "license": "ISC",
   "dependencies": {
-    "es6-transpiler": "^0.7.17",
     "gulp": "^3.8.8",
     "gulp-browserify": "^0.5.0",
-    "gulp-es6-transpiler": "^1.0.0",
     "gulp-rename": "^1.2.0",
     "rimraf": "^2.2.8",
     "run-sequence": "^1.0.1"
