@@ -43,6 +43,23 @@ body {
 	flex-wrap: wrap;
 	border-right: 1px solid gray;
 	border-bottom: 1px solid gray;
+	position: relative;
+}
+.paused {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	opacity: 0.6;
+	background-color: black;
+	display: flex;
+	display: none;
+	border-left: 1px solid gray;
+	border-top: 1px solid gray;
+}
+.paused > h1 {
+	margin: auto;
 }
 .cell {
 	width: calc(10% - 1px);
@@ -51,6 +68,7 @@ body {
 	border-left: 1px solid gray;
 	border-top: 1px solid gray;
 }
+
 .cell:nth-child(10n) {
 	-webkit-flex-grow: 1;
 	flex-grow: 1;
@@ -60,62 +78,43 @@ body {
 }
 
 .right-menu {
-	width: 40%;
-	height: 100%;
-}
-/*.menu {
-	background-color: #222;
-	color: white;
-	flex-direction: column;
-}
-
-.menu h1 {
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 10%;
-	margin-bottom: 40%;
-}
-
-.menu p {
-	margin-left: auto;
-	margin-right: auto;
-}
-
-.board {
-	height: 100%;
 	width: 50%;
+	height: calc(100% - 20px);
+	margin-top: 10px;
+	background-color: #555;
+	padding-left: 5px;
+	margin-left: 5px;
+	border: 1px solid black;
+}
+
+.preview-menu {
+	width: 40%;
+	height: 20%;
+	margin: auto;
 	display: flex;
 	flex-wrap: wrap;
-	background-color: #222;
-	margin-left: auto;
+	border-right: 1px solid gray;
+	border-bottom: 1px solid gray;
 }
 
-.cell {
-	width: calc(10% - 1px);
-	height: calc(5% - 1px);
+.preview {
+	width: calc(25% - 1px);
+	height: calc(25% - 1px);
+	background-color: #222;
 	border-left: 1px solid gray;
 	border-top: 1px solid gray;
 }
 
-.right-menu {
-	width: 50%;
-	background-color: cadetblue;
-	border-left: 1px solid gray;
-	margin-left: -2px;
-	margin-right: auto;
-}
-*/
-
 .col1 {
-	background-color: red;
+	background-color: cyan;
 }
 
 .col2 {
-	background-color: green;
+	background-color: purple;
 }
 
 .col3 {
-	background-color: white;
+	background-color: yellow;
 }
 
 .col4 {
@@ -127,13 +126,16 @@ body {
 }
 
 .col6 {
-	background-color: purple;
+	background-color: green;
 }
 
 .col7 {
-	background-color: yellow;
+	background-color: red;
 }
 
 .col-1 {
-	background-color: gray;
+	background-color: #333;
+}
+.col-2 {
+	background-color: #444;
 }
