@@ -36,7 +36,10 @@ function HtmlVNode (tagName, props) {
     var keys = Object.keys(props || {});
     for (var i = 0; i < keys.length; i++) {
         if (keys[i] === 'className') {
-            this.node.classList.add(props.className);
+            if (props.className instanceof Array) {
+                this.node.classList.add.apply(this.node.classList, props.className);
+            } else
+                this.node.classList.add(props.className);            
         } else if (keys[i] === 'onClick') {
             this.node.addEventListener('click', props.onClick);
         } else {
