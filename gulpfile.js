@@ -19,13 +19,6 @@ gulp.task('move-html', function () {
         .pipe(gulp.dest(BUILD));
 });
 
-gulp.task('browserify', function() {
-    return gulp.src(SRC + '/index.js')
-        .pipe(browserify())
-        .pipe(rename('app-es6.js'))
-        .pipe(gulp.dest(BUILD));
-});
-
 gulp.task('prepare-js', function() {
     return gulp.src(SRC + '/index.js')
         .pipe(browserify())
