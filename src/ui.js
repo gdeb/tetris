@@ -1,12 +1,12 @@
 
-var VDOM = require('./vdom.js'),
+var Moebius = require('./moebius.js'),
     Tetris = require('./tetrisGame.js');
 
-var Component = VDOM.Component,
-    div = VDOM.div,
-    h1 = VDOM.h1,
-    p = VDOM.p,
-    actions = VDOM.createActions('startGame', 'stopGame', 'backToMainMenu');
+var Component = Moebius.Component,
+    div = Moebius.div,
+    h1 = Moebius.h1,
+    p = Moebius.p,
+    actions = Moebius.createActions('startGame', 'stopGame', 'backToMainMenu');
 
 //-----------------------------------------------------------------------------
 function TetrisUI () {
